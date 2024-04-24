@@ -97,7 +97,7 @@ jobs:
       - name: Verify Image Signature
         run: |
           export COSIGN_EXPERIMENTAL="1"
-          cosign verify --key cosign.pub ${{ secrets.DOCKER_USERNAME }}/giropops-chainguard:${{ GITHUB.SHA }} --yes
+          cosign verify --key cosign.pub ${{ secrets.DOCKER_USERNAME }}/giropops-chainguard:${{ GITHUB.SHA }}
 
       - name: Test Container
         run: |
