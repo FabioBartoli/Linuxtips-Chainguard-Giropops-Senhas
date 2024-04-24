@@ -8,7 +8,7 @@ on:
 jobs:
   build-and-test-image:
     name: Build and Test Image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -38,7 +38,7 @@ jobs:
 
   sign-docker-image:
     name: Sign Docker Image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: build-and-test-image
     steps:
       - name: Checkout code
@@ -68,7 +68,7 @@ jobs:
 
   deploy-and-test-image:
     name: Deploy Image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: sign-docker-image
     steps:
       - name: Checkout code
