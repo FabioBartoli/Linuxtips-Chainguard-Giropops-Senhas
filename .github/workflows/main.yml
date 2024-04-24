@@ -85,10 +85,24 @@ jobs:
           docker run -d -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/giropops-chainguard:${{ GITHUB.SHA }}
           echo "Container ID: $container_id"
 
+      - name: Install Cosign
+        run: |
+          curl -sL https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64 --output cosign
+          chmod +x cosign
+          sudo mv cosign /usr/local/bin/cosign
+      
+      - name: Import Cosign Public Key
+        run: echo "${{ secrets.COSIGN_PUBLIC_KEY }}" | base64 -d > cosign.pub
+
+      - name: Verify Image Signature
+        run: |
+          export COSIGN_EXPERIMENTAL="1"
+          cosign verify --key cosign.pub ${{ secrets.DOCKER_USERNAME }}/giropops-chainguard:${{ GITHUB.SHA }} --yes
+
       - name: Test Container
         run: |
           echo "Verificando tamanho da imagem..."
-          docker images | grep ${{ secrets.DOCKER_USERNAME }}/giropops-chainguard:${{ GITHUB.SHA }}
+          docker images
           echo "Validando conteúdo do Site..."
           if ! curl -sS 127.0.0.1:5000 >/dev/null 2>&1; then
             echo "Erro: Falha ao conectar ao serviço."
