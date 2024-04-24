@@ -1,6 +1,6 @@
 ## Desafio Day 03 - Criando o Distroless
 Para resolver o desafio do dia 03, eu optei por tentar uma abordagem onde utilizasse um container único para o build da aplicação completa, com a estrutura do Python e do Redis executando em um container mínimo
-A primeira questão a ser resolvida é o entrypoint: Eu preciso de uma maneira de executar tanto o redis em daemon quanto o python/flask para iniciar a aplicação, mas não podemos ter mais de um ENTRYPOINT a ser executado para inicializar o container. Também não poderíamos executar comandos internamente na última camada da aplicação, pois a imagem de produção da Chainguard não contempla a execução de bash, shell ou afins. A solução para isso foi desenvolver uma pequena aplicação binária GO, que pode ser conferida em ./app/go-bin-exec/main.go
+A primeira questão a ser resolvida é o entrypoint: Eu preciso de uma maneira de executar tanto o redis em daemon quanto o python/flask para iniciar a aplicação, mas não podemos ter mais de um ENTRYPOINT a ser executado para inicializar o container. Também não poderíamos executar comandos internamente na última camada da aplicação, pois a imagem de produção da Chainguard não contempla a execução de bash, shell ou afins. A solução para isso foi desenvolver uma pequena aplicação binária GO, que pode ser conferida em [./app/go-bin-exec/main.go](https://raw.githubusercontent.com/FabioBartoli/Linuxtips-Chainguard-Giropops-Senhas/main/app/go-bin-exec/main.go)
 #
 Com o código do GO criado, preciso analisar quais serão os steps necessários para meu Dockerfile gerar a imagem corretamente, e optei por utilizar 3 stages anteriores ao build da aplicação. São eles:
 
@@ -14,7 +14,7 @@ Feito a criação dos stages, irei copiar os executáveis necessários gerados p
     COPY  --from=python-builder  /home/nonroot/.local/bin  /home/nonroot/.local/bin
     COPY  --from=redis-builder  /usr/bin/redis-server  /usr/bin/redis-server
     COPY  --from=go-builder  /app/go-bin-exec  .
-O Dockerfile completo pode ser conferido em ./app/Dockerfile
+O Dockerfile completo pode ser conferido em [./app/Dockerfile](https://raw.githubusercontent.com/FabioBartoli/Linuxtips-Chainguard-Giropops-Senhas/main/app/Dockerfile)
 Por fim, a aplicação foi totalmente buildada em uma imagem final de 78MB
 ![Image Giropops Chainguard Final Size](./readme-assets/image-size.png)
 
@@ -23,7 +23,7 @@ Para os passos a seguir, criei um pipeline automatizado do Github Actions para s
 
 ![Actions Run](./readme-assets/actions-run.png)
 
-O Actions completo poderá ser conferido em ./.github/workflows/main.yml, mas aqui está um resumo do que ele está fazendo:
+O Actions completo poderá ser conferido em [./.github/workflows/main.yml](https://raw.githubusercontent.com/FabioBartoli/Linuxtips-Chainguard-Giropops-Senhas/main/.github/workflows/main.yml), mas aqui está um resumo do que ele está fazendo:
 
  - **Build and Test Image**: Esse primeiro job é o responsável por fazer o build da Imagem em si, além de testá-la utilizando o trivy. Se nenhuma vulnerabilidade é descoberta, ele segue para fazer o push da minha imagem no meu dockerhub
 Aqui, eu optei por utilizar o meu SHA do commit do Github como minha tag, para que eu consiga ter um controle melhor de versão

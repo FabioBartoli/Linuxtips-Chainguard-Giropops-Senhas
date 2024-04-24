@@ -93,11 +93,13 @@ jobs:
         run: |
           export COSIGN_EXPERIMENTAL="1"
           cosign verify --key cosign.pub ${{ secrets.DOCKER_USERNAME }}/giropops-chainguard:${{ GITHUB.SHA }}
-          
+
       - name: Deploy Container
         run: |
           docker run -d -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/giropops-chainguard:${{ GITHUB.SHA }}
           echo "Container ID: $container_id"
+          docker container ls
+          sleep 10
 
       - name: Test Container
         run: |
