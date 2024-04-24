@@ -80,11 +80,6 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Deploy Container
-        run: |
-          docker run -d -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/giropops-chainguard:${{ GITHUB.SHA }}
-          echo "Container ID: $container_id"
-
       - name: Install Cosign
         run: |
           curl -sL https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64 --output cosign
@@ -98,6 +93,11 @@ jobs:
         run: |
           export COSIGN_EXPERIMENTAL="1"
           cosign verify --key cosign.pub ${{ secrets.DOCKER_USERNAME }}/giropops-chainguard:${{ GITHUB.SHA }}
+          
+      - name: Deploy Container
+        run: |
+          docker run -d -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/giropops-chainguard:${{ GITHUB.SHA }}
+          echo "Container ID: $container_id"
 
       - name: Test Container
         run: |
